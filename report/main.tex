@@ -77,7 +77,7 @@ modulator, uniform noise channel, integrate-and-dump demodulator and threshold
 detector) is a separate MATLAB function, and the same functions are reused for the
 spread-spectrum system by adding a $\pm1$ pseudo-noise (PN) sequence and a
 sinusoidal jammer. For the unjammed system the measured bit error rate (BER) agrees
-with an exact analytical result to within Monte-Carlo accuracy from
+with the exact closed-form (Irwin--Hall) result to within Monte-Carlo accuracy from
 \num{2e-1} down to \num{5e-8}, and it shows that the common Gaussian approximation
 $\Q(\sqrt{\snr})$ is pessimistic at high SNR because uniform noise is bounded.
 For the jammed system, despreading converts the narrowband jammer into wideband
@@ -86,8 +86,9 @@ power the receiver tolerates at BER $=10^{-3}$ by \SIrange{11}{20}{dB} for
 $M=50$ to $1000$. Under the brief's literal condition $A=M$, however, the jammer
 power grows as $M^2$ while the processing gain grows only as $M$, so both systems
 operate near BER $=0.5$; the PN system is better against an in-band jammer but
-can be worse against an out-of-band one. All results are matched by closed-form
-expressions derived in the report.
+can be worse against an out-of-band one. The jammed results agree with
+semi-analytical expressions (Gaussian treatment of the summed noise, averaged over
+the jammer phase) derived in the report.
 \end{abstract}
 
 \tableofcontents
@@ -222,14 +223,22 @@ $W_k\approx\mathcal{N}(0, MP_n)$ and
   \label{eq:pe_gauss}
 \end{equation}
 
-\paragraph{Exact result.} $W_k$ is a sum of $M$ independent uniform variables, whose
-density is the $M$-fold convolution of a rectangle (an Irwin--Hall density scaled
-to $[-Ma, Ma]$). Two consequences are useful checks: for $M=1$,
-$P_e = (a-1)/(2a)$ for $a>1$; and for any $M$, $P_e = 0$ when $a\le1$ because
-$|W_k|\le Ma \le M$. Because the true density has bounded support, its tails fall
-off faster than the Gaussian, so \eqref{eq:pe_gauss} overestimates $P_e$ at high
-SNR. The exact $P_e$ was computed numerically by repeated convolution
-(\texttt{exact\_ber\_uniform.m}).
+\paragraph{Exact result.} $W_k$ is a sum of $M$ independent uniform variables, so
+$W_k = 2aS - Ma$ where $S$ is a sum of $M$ independent $\mathcal{U}(0,1)$ variables,
+which has the Irwin--Hall distribution. Hence
+\begin{equation}
+  P_e = \Pr\{S > x\} = F_M(M-x), \qquad x = \frac{M(1+a)}{2a},\qquad
+  F_M(y) = \frac{1}{M!}\sum_{k=0}^{\lfloor y\rfloor}(-1)^k\binom{M}{k}(y-k)^M ,
+  \label{eq:pe_exact}
+\end{equation}
+using the symmetry of $S$ about $M/2$. Evaluating $F_M$ on the short side
+($y\le M/2$) keeps the alternating sum well conditioned; for the $M\le20$ used here
+the double-precision values agree with a 50-digit evaluation to at least seven
+significant figures (\texttt{exact\_ber\_uniform.m}). Two special cases are useful
+checks: for $M=1$, $P_e = (a-1)/(2a)$ for $a>1$; and for any $M$, $P_e = 0$ when
+$a\le1$ because $|W_k|\le Ma \le M$. Because the true density has bounded support,
+its tails fall off faster than the Gaussian, so \eqref{eq:pe_gauss} overestimates
+$P_e$ at high SNR.
 
 \subsection{Sinusoidal jamming without spreading}
 
@@ -322,7 +331,7 @@ Function & Block & Operation \\
 \texttt{sine\_generator(L,A,w0,n0)} & Sine generator        & $A\sin\omega_0 n$, continuous phase \\
 \midrule
 \texttt{binary\_comm\_sim}          & Whole system          & chains the blocks, Monte-Carlo loop \\
-\texttt{exact\_ber\_uniform}        & Theory                & exact $P_e$ by numerical convolution \\
+\texttt{exact\_ber\_uniform}        & Theory                & exact $P_e$, Irwin--Hall \eqref{eq:pe_exact} \\
 \texttt{ber\_theory\_jam}           & Theory                & \cref{eq:pe_nopn,eq:pe_pn}, phase averaged \\
 \bottomrule
 \end{tabular}
@@ -430,7 +439,7 @@ Observations:
         small noise range $a$, and as $a\to1$ the maximum possible noise sum $Ma$
         approaches $M$, so $P_e\to0$ much faster than the Gaussian tail. Only
         one error in $2\times10^7$ bits was observed at \SI{13}{dB}, consistent with
-        the exact value $1.3\times10^{-7}$. The SNR alone does not fully describe the
+        the exact value $1.2\times10^{-7}$. The SNR alone does not fully describe the
         system when the noise is not Gaussian.
 \end{enumerate}
 
@@ -445,7 +454,8 @@ $M=50,100,500,1000$ with the smallest jammer amplitude the brief allows, $A=M$.
 \begin{table}[ht]
 \centering
 \caption{BER with the jammer amplitude $A=M$ and $P_n=1$. Each entry is
-\emph{simulated (theory)}, with theory from \cref{eq:pe_nopn,eq:pe_pn}.}
+\emph{simulated (theory)}, with theory from the phase-averaged
+\cref{eq:pe_nopn,eq:pe_pn} (Gaussian approximation for the summed noise).}
 \label{tab:128}
 \small
 \begin{tabular}{@{}rr cc cc@{}}
@@ -475,11 +485,16 @@ $M$ & $A$ & No PN & PN & No PN & PN \\
         $A\sqrt{M/2}$. The improvement shrinks as $M$ grows because
         $\mathrm{SINR}\approx 2/M$ when $A=M$.
   \item \textbf{Out-of-band jammer.} Without PN the demodulator rejects the jammer
-        through its $\sin(\omega_0/2)$ roll-off. The error rate depends only on whether
-        $A|D_M(1)|$ exceeds $M$: it does not for $M=50,100$ (BER $=0$), it does for
-        $M=500$ ($|D_M|/M=2.02$, BER $=0.33$) and only just does for $M=1000$
-        ($|D_M|/M=0.98$, BER $=0.013$). With PN the BER is $0.42$--$0.48$
-        regardless of $\omega_0$ and is therefore \emph{worse} here: spreading takes
+        through its $\sin(\omega_0/2)$ roll-off. What matters is the peak jammer sum
+        $A|D_M(1)|$ relative to the signal sum $M$; with $A=M$ this ratio is
+        $|D_M(1)| = 0.28$, $0.55$, $2.02$ and $0.98$ for $M=50$, $100$, $500$ and
+        $1000$. For $M=50$ and $100$ the jammer can never overturn a bit and the BER is
+        $0$. For $M=500$ it overturns every bit whose jammer phase is near the peak,
+        giving BER $=0.33$. For $M=1000$ the ratio is just below 1, so the jammer alone
+        cannot cause an error; the residual BER of $0.013$ comes from the noise
+        (standard deviation $\sqrt{MP_n}=32$) pushing bits that the jammer has brought
+        within $0.02M=20$ of the threshold across it. With PN the BER is $0.42$--$0.48$
+        at both jammer frequencies and is therefore \emph{worse} here: spreading takes
         a jammer the receiver was already rejecting and turns it into in-band noise.
   \item The simulated and theoretical values agree to within $\pm0.007$ in every
         cell, so the behaviour is a property of the system, not of the simulation.
@@ -528,9 +543,14 @@ PN system can tolerate.
 
 \subsection{Effect of jammer frequency}
 
-\Cref{fig:w0} sweeps $\omega_0$ over $(0,\pi]$ for $M=100$. With PN the BER is flat
-in frequency, and it agrees with \cref{eq:pe_pn}: $0.44$ at $A=100$, and
-$\Q(\sqrt{100/13.5})=3.2\times10^{-3}$ at $A=5$. Without PN the BER follows
+\Cref{fig:w0} sweeps $\omega_0$ over $0.002\pi\le\omega_0\le0.998\pi$ for $M=100$;
+the end points are excluded because the brief requires $0<\omega_0<\pi$, and at
+$\omega_0=\pi$ the sampled jammer $A\sin(\pi n)$ is identically zero. With PN the
+BER is nearly constant over most of the band and agrees with \cref{eq:pe_pn}:
+$0.44$ at $A=100$, and $\Q(\sqrt{100/13.5})=3.2\times10^{-3}$ at $A=5$. It rises
+within roughly $2\pi/M$ of either band edge, where $\sin^2\omega_0 n$ is no longer
+averaged within one bit, so the despread interference power varies from bit to bit;
+the phase-averaged theory reproduces this. Without PN the BER follows
 the Dirichlet kernel $|D_M(\omega_0)|$: it is $0.5$ near DC, falls to zero at every
 null $\omega_0=2\pi\ell/M$, and decays with $\omega_0$. At $A=5$ the system without
 PN fails only for $\omega_0<0.03\pi$, i.e.\ inside the main lobe of the
@@ -539,8 +559,9 @@ demodulator response.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.8\linewidth]{p128_ber_vs_w0}
-\caption{BER against jammer frequency for $M=100$: $A=M$ (top, linear scale) and
-$A=5$ (bottom, log scale).}
+\caption{BER against jammer frequency for $M=100$ and $0<\omega_0<\pi$: $A=M$ (top,
+linear scale) and $A=5$ (bottom, log scale). Theory curves are the phase-averaged
+expressions of \cref{sec:theory}.}
 \label{fig:w0}
 \end{figure}
 
@@ -587,9 +608,10 @@ concentrates only the signal back into the narrow band of the demodulator.
         gain at all; this is why the conventional system fails at $A\approx1$ whatever
         $M$ is, while the PN system tolerates jammers \SIrange{11}{20}{dB} stronger
         (\cref{tab:margin}).
-  \item \textbf{Independence from the jammer frequency.} The PN system's performance
-        depends only on the jammer power, not on $\omega_0$ (\cref{fig:w0}). A jammer
-        cannot find a frequency where the receiver is weak; its best strategy is
+  \item \textbf{Weak dependence on the jammer frequency.} Away from the band edges
+        (within about $2\pi/M$ of $\omega_0=0$ or $\pi$) the PN system's performance
+        depends essentially on the jammer power alone (\cref{fig:w0}). A jammer
+        cannot find a frequency where the receiver is much weaker; its best strategy is
         simply more power. In the conventional system the worst case, a jammer placed
         inside the signal band, is also the easiest for an adversary to choose.
   \item \textbf{Low probability of interception.} Although not measured here, the
@@ -633,13 +655,13 @@ bit rate.
 
 Both textbook systems were implemented in MATLAB as one function per block and
 validated against analytical results. For the binary system with uniform noise the
-BER follows the exact $M$-fold-convolution result over seven decades, and the
+BER follows the exact Irwin--Hall result over seven decades, and the
 familiar $\Q(\sqrt{\snr})$ approximation is pessimistic at high SNR because the
 noise is bounded. For the spread-spectrum system, the PN sequence converts a
 narrowband jammer into wideband noise, which the integrate-and-dump demodulator then
 averages down by the processing gain $M$. This made the receiver tolerate in-band
 jammers \SIrange{11}{20}{dB} stronger than the conventional receiver and made its
-performance independent of the jammer frequency. Under the brief's condition $A=M$
+performance nearly independent of the jammer frequency away from the band edges. Under the brief's condition $A=M$
 the jammer power exceeds the processing gain by \SIrange{14}{27}{dB}, so both systems
 operate near BER $=0.5$; the PN system still has the lower error rate against an
 in-band jammer, but not against an out-of-band one, which the conventional

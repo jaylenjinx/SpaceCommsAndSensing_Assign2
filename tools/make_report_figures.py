@@ -77,8 +77,8 @@ fig, ax = plt.subplots(figsize=(6.4, 4.2))
 snr = np.linspace(-1, 14, 300)
 ax.semilogy(snr, Q(np.sqrt(10 ** (snr / 10))), color=C["th"], lw=1.2,
             label=r"Gaussian approx. $Q(\sqrt{\mathrm{SNR}})$")
-ax.semilogy(r.snr_a_db, r.exact_a, "--", color=C["pn"], lw=1, label="Exact, sweep (a)")
-ax.semilogy(r.snr_b_db, r.exact_b, ":", color=C["nopn"], lw=1.5, label="Exact, sweep (b)")
+ax.semilogy(r.snr_a_db, r.exact_a, "--", color=C["pn"], lw=1, label="Exact (Irwin–Hall), sweep (a)")
+ax.semilogy(r.snr_b_db, r.exact_b, ":", color=C["nopn"], lw=1.5, label="Exact (Irwin–Hall), sweep (b)")
 ax.semilogy(r.snr_a_db, np.where(r.ber_a > 0, r.ber_a, np.nan), "o", mfc="none",
             color=C["pn"], label=r"Simulated (a): $P_n=1$, $M=1\ldots20$")
 ax.semilogy(r.snr_b_db, np.where(r.ber_b > 0, r.ber_b, np.nan), "s", mfc="none",

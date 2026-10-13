@@ -4,7 +4,7 @@ function save_fig(f, name)
     outdir = fullfile(fileparts(mfilename('fullpath')), '..', 'figures');
     if ~exist(outdir, 'dir'), mkdir(outdir); end
     base = fullfile(outdir, name);
-    if exist('exportgraphics', 'file') == 2
+    if exist('exportgraphics', 'file') > 0
         exportgraphics(f, [base '.pdf'], 'ContentType', 'vector');
         exportgraphics(f, [base '.png'], 'Resolution', 200);
     else

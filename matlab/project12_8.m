@@ -69,7 +69,11 @@ end
 
 f = figure('visible', 'off');
 cols = {'b', 'r', [0 0.6 0], 'm'};
-h = zeros(1, numel(M_list));
+if exist('gobjects') > 0                   % MATLAB: graphics-handle array
+    h = gobjects(1, numel(M_list));
+else                                       % Octave: handles are doubles
+    h = zeros(1, numel(M_list));
+end
 for i = 1:numel(M_list)
     h(i) = semilogy(jsr_db, max(B1(i,:), 1e-6), 'o', 'Color', cols{i}, 'MarkerSize', 5); hold on;
     semilogy(jsr_db, max(Th1(i,:), 1e-6), '-', 'Color', cols{i}, 'LineWidth', 1.1);
@@ -87,8 +91,10 @@ save_fig(f, 'p128_ber_vs_jsr');
 
 %% 3. BER against jammer frequency
 M  = 100;
-w_list = pi * linspace(0.002, 1, 120);     % simulated points
-w_fine = pi * linspace(0.001, 1, 2000);    % theory curve
+% The brief requires 0 < w0 < pi. At w0 = pi the sampled jammer
+% A*sin(pi*n) is identically zero, so both end points are excluded.
+w_list = pi * linspace(0.002, 0.998, 120); % simulated points
+w_fine = pi * linspace(0.001, 0.999, 2000);% theory curve
 A_pair = [M 5];
 W0 = zeros(2, numel(w_list)); W1 = W0;
 Wt0 = zeros(2, numel(w_fine)); Wt1 = Wt0;

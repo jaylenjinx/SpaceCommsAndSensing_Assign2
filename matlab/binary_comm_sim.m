@@ -6,7 +6,7 @@ function [ber, nerr, nbits] = binary_comm_sim(M, a, opts)
 %     opts  struct with optional fields
 %       .use_pn    true to spread with a +/-1 PN sequence   (default false)
 %       .A         sinusoidal interference amplitude         (default 0)
-%       .w0        interference frequency in rad/sample      (default 0)
+%       .w0        interference frequency in rad/sample, 0 < w0 < pi
 %       .min_err   stop once this many errors are seen       (default 200)
 %       .max_bits  hard limit on simulated bits              (default 1e6)
 %       .block     bits simulated per block                  (default 2e4)
@@ -19,6 +19,9 @@ function [ber, nerr, nbits] = binary_comm_sim(M, a, opts)
     min_err  = getopt(opts, 'min_err', 200);
     max_bits = getopt(opts, 'max_bits', 1e6);
     block    = getopt(opts, 'block', 2e4);
+    if A ~= 0 && ~(w0 > 0 && w0 < pi)
+        error('binary_comm_sim:w0', 'Jammer frequency must satisfy 0 < w0 < pi.');
+    end
     % keep each block below ~2e7 samples
     block = max(1, min(block, floor(2e7 / M)));
 
