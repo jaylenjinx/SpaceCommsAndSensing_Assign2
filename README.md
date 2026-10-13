@@ -12,11 +12,9 @@ Assignment 2, Topic 2: Binary Data and Spread-Spectrum Communications
 | `results/` | Numeric results (`.mat`) and LaTeX table rows written by the scripts |
 | `figures/` | Figures saved directly by the MATLAB scripts |
 | `tools/make_report_figures.py` | Re-plots the saved results with a consistent style for the report and slides |
-| `report/` | LaTeX report (`main.tex`, compiled `main.pdf`) |
-| `slides/` | Beamer presentation (`slides.tex`, compiled `slides.pdf`) |
-
-The files at the repository root (`LFMCW.m`, `impseq.m`, `stepseq.m`, `Script1.m`) are the
-standard functions from earlier work and are not used by this assignment.
+| `output/` | Rendered deliverables: `Assignment2_Report.pdf` and `Assignment2_Presentation.pdf` |
+| `report/` | LaTeX source of the report (`main.tex`) |
+| `slides/` | Beamer source of the presentation (`slides.tex`) |
 
 ## Reproducing everything
 
@@ -30,8 +28,8 @@ The code needs no toolboxes and also runs in GNU Octave:
 ```sh
 octave-cli --path matlab --eval run_all
 python3 tools/make_report_figures.py          # needs numpy, scipy, matplotlib
-cd report && pdflatex main.tex && pdflatex main.tex
-cd ../slides && pdflatex slides.tex && pdflatex slides.tex
+cd report && pdflatex main.tex && pdflatex main.tex && cp main.pdf ../output/Assignment2_Report.pdf
+cd ../slides && pdflatex slides.tex && pdflatex slides.tex && cp slides.pdf ../output/Assignment2_Presentation.pdf
 ```
 
 ## MATLAB functions

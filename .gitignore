@@ -50,3 +50,7 @@ codegen/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Compiled PDFs are kept in output/
+report/*.pdf
+slides/*.pdf
