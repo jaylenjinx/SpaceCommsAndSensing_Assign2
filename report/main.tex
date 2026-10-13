@@ -547,10 +547,11 @@ PN system can tolerate.
 the end points are excluded because the brief requires $0<\omega_0<\pi$, and at
 $\omega_0=\pi$ the sampled jammer $A\sin(\pi n)$ is identically zero. With PN the
 BER is nearly constant over most of the band and agrees with \cref{eq:pe_pn}:
-$0.44$ at $A=100$, and $\Q(\sqrt{100/13.5})=3.2\times10^{-3}$ at $A=5$. It rises
-within roughly $2\pi/M$ of either band edge, where $\sin^2\omega_0 n$ is no longer
-averaged within one bit, so the despread interference power varies from bit to bit;
-the phase-averaged theory reproduces this. Without PN the BER follows
+$0.44$ at $A=100$, and $\Q(\sqrt{100/13.5})=3.2\times10^{-3}$ at $A=5$. It departs
+from these values within roughly $2\pi/M$ of either band edge (falling to about $0.41$
+at $A=100$ and rising to about $8\times10^{-3}$ at $A=5$), where $\sin^2\omega_0 n$ is
+no longer averaged within one bit, so the despread interference power varies from bit
+to bit; the phase-averaged theory reproduces this. Without PN the BER follows
 the Dirichlet kernel $|D_M(\omega_0)|$: it is $0.5$ near DC, falls to zero at every
 null $\omega_0=2\pi\ell/M$, and decays with $\omega_0$. At $A=5$ the system without
 PN fails only for $\omega_0<0.03\pi$, i.e.\ inside the main lobe of the
