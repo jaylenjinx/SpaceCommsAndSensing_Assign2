@@ -11,7 +11,7 @@
 
 \title{Binary Data and Spread-Spectrum Communications}
 \subtitle{42057 Space Communications and Sensing --- Assignment 2, Topic 2}
-\author{The Goats: [Member 1], [Member 2], [Member 3], [Member 4]}
+\author{Jaylen Avtarovski [24767939], Elina Kim [24949885], Rhyse Williams [24817532], Benjamin Hudson [24742900]}
 \date{Spring 2026}
 
 \begin{document}
@@ -19,16 +19,16 @@
 \maketitle
 
 % ----------------------------------------------------------------
-\begin{frame}{Why spread spectrum in space links?}
+\begin{frame}{Why spread spectrum in space links? - Ben}
 \begin{itemize}
   \item Space links are power limited and exposed to interference and jamming.
-  \item GPS spreads a \SI{50}{bit/s} message with a \SI{1.023}{Mchip/s} code:
+  \item GPS spreads a \SI{50}{bit/s} message with a \SI{1.023}{Mchirps/s} code:
         \alert{\SI{43}{dB} processing gain}.
   \item TDRSS uses direct-sequence spreading for multiple access and
         interference rejection.
 \end{itemize}
 \vspace{0.4cm}
-\textbf{Our task} (Ingle \& Proakis, Projects 12.7 and 12.8)
+\textbf{Our task}
 \begin{enumerate}
   \item Simulate a binary system in uniform noise and measure BER vs SNR.
   \item Add a PN sequence and a sinusoidal jammer $A\sin\omega_0 n$, $A\ge M$,
@@ -37,7 +37,7 @@
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{System models}
+\begin{frame}{System models - Ben}
 \centering
 \resizebox{0.95\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -75,7 +75,7 @@ Same PN at both ends, $p^2(n)=1$, so the signal is restored exactly.
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}[fragile]{MATLAB implementation}
+\begin{frame}[fragile]{MATLAB implementation - Ben}
 \begin{columns}[T]
 \column{0.5\textwidth}
 One function per block, reused across both projects:
@@ -106,13 +106,13 @@ y = demodulator(r, M);
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Project 12.7: signals through the system}
+\begin{frame}{Project 12.7: signals through the system - Elina}
 \centering
 \includegraphics[height=0.8\textheight]{p127_waveforms}
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Project 12.7: BER vs SNR}
+\begin{frame}{Project 12.7: BER vs SNR - Elina}
 \begin{columns}[c]
 \column{0.58\textwidth}
 \includegraphics[width=\linewidth]{p127_ber}
@@ -129,7 +129,7 @@ y = demodulator(r, M);
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Theory: what the PN sequence does to the jammer}
+\begin{frame}{Theory: what the PN sequence does to the jammer - Elina}
 \begin{columns}[T]
 \column{0.5\textwidth}
 \textbf{Without PN}
@@ -157,7 +157,7 @@ y = demodulator(r, M);
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Project 12.8: spectra before and after despreading}
+\begin{frame}{Project 12.8: spectra before and after despreading - Rhyse}
 \begin{columns}[c]
 \column{0.58\textwidth}
 \includegraphics[width=\linewidth]{p128_spectra}
@@ -174,7 +174,7 @@ $M=100$, $A=10$, $\omega_0=0.2\pi$
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Project 12.8: the brief's experiment, $A=M$}
+\begin{frame}{Project 12.8: the brief's experiment, $A=M$ - Rhyse}
 \begin{columns}[c]
 \column{0.58\textwidth}
 \includegraphics[width=\linewidth]{p128_ber_A_eq_M}
@@ -190,7 +190,7 @@ $M=100$, $A=10$, $\omega_0=0.2\pi$
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Processing gain: BER vs jammer power}
+\begin{frame}{Processing gain: BER vs jammer power - Rhyse}
 \begin{columns}[c]
 \column{0.58\textwidth}
 \includegraphics[width=\linewidth]{p128_ber_vs_jsr}
@@ -214,7 +214,7 @@ Without PN, more samples per bit \alert{do not help}: the jammer is integrated t
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{BER vs jammer frequency ($M=100$)}
+\begin{frame}{BER vs jammer frequency ($M=100$) - Jaylen}
 \begin{columns}[c]
 \column{0.55\textwidth}
 \includegraphics[width=\linewidth]{p128_ber_vs_w0}
@@ -231,7 +231,7 @@ Without PN, more samples per bit \alert{do not help}: the jammer is integrated t
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Why spread spectrum wins (and when it doesn't)}
+\begin{frame}{Why spread spectrum wins (and when it doesn't) - Jaylen}
 \begin{enumerate}
   \item \textbf{Coherent vs incoherent addition}: the signal sums to $M$ (power $M^2$),
         the despread jammer to power $MA^2/2$, a gain of $M$.
@@ -246,7 +246,7 @@ sit near BER $=0.5$. The benefit of spreading is a fixed number of decibels.
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{Conclusions}
+\begin{frame}{Conclusions - Jaylen}
 \begin{itemize}
   \item Modular MATLAB simulator, one function per block, validated against exact theory.
   \item 12.7: BER matches the exact uniform-noise result; the Gaussian
