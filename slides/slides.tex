@@ -11,7 +11,7 @@
 
 \title{Binary Data and Spread-Spectrum Communications}
 \subtitle{42057 Space Communications and Sensing --- Assignment 2, Topic 2}
-\author{Jaylen Avtarovski [24767939], Elina Kim [24949885], Rhyse Williams [24817532], Benjamin Hudson [24742900]}
+\author{Benjamin Hudson [24742900], Elina Kim [24949885], \\ Rhyse Williams [24817532], Jaylen Avtarovski [24767939]}
 \date{Spring 2026}
 
 \begin{document}
@@ -19,13 +19,12 @@
 \maketitle
 
 % ----------------------------------------------------------------
-\begin{frame}{Why spread spectrum in space links? - Ben}
+\begin{frame}{Why spread spectrum in space links? - Benjamin}
 \begin{itemize}
   \item Space links are power limited and exposed to interference and jamming.
-  \item GPS spreads a \SI{50}{bit/s} message with a \SI{1.023}{Mchirps/s} code:
+  \item GPS spreads a \SI{50}{bit/s} message with a \SI{1.023}{Mchips/s} code:
         \alert{\SI{43}{dB} processing gain}.
-  \item TDRSS uses direct-sequence spreading for multiple access and
-        interference rejection.
+  \item PN DSSS allows for discrete transmission with intrinsic time codeing
 \end{itemize}
 \vspace{0.4cm}
 \textbf{Our task}
@@ -37,7 +36,7 @@
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}{System models - Ben}
+\begin{frame}{System models - Benjamin}
 \centering
 \resizebox{0.95\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -75,7 +74,7 @@ Same PN at both ends, $p^2(n)=1$, so the signal is restored exactly.
 \end{frame}
 
 % ----------------------------------------------------------------
-\begin{frame}[fragile]{MATLAB implementation - Ben}
+\begin{frame}[fragile]{MATLAB implementation - Benjamin}
 \begin{columns}[T]
 \column{0.5\textwidth}
 One function per block, reused across both projects:
@@ -224,7 +223,7 @@ Without PN, more samples per bit \alert{do not help}: the jammer is integrated t
   \item PN: BER is \alert{nearly flat in frequency}; it changes only within $\sim2\pi/M$
         of $0$ and $\pi$.
   \item No PN: BER follows the Dirichlet kernel, zero at the nulls $2\pi\ell/M$,
-        worst near DC.
+        worst near $\omega = 0$.
   \item A jammer can always pick the conventional receiver's weak spot: the signal band.
 \end{itemize}
 \end{columns}
@@ -239,7 +238,7 @@ Without PN, more samples per bit \alert{do not help}: the jammer is integrated t
   \item \textbf{Low probability of intercept and CDMA}: the signal sits at the noise floor.
 \end{enumerate}
 \vspace{0.3cm}
-\begin{alertblock}{Caveat from the $A\ge M$ condition}
+\begin{alertblock}{Caveat from the $A\ge M$ condition within the brief}
 The jammer power grows as $M^2$ but the processing gain only as $M$, so both systems
 sit near BER $=0.5$. The benefit of spreading is a fixed number of decibels.
 \end{alertblock}
@@ -251,7 +250,7 @@ sit near BER $=0.5$. The benefit of spreading is a fixed number of decibels.
   \item Modular MATLAB simulator, one function per block, validated against exact theory.
   \item 12.7: BER matches the exact uniform-noise result; the Gaussian
         approximation is pessimistic at high SNR.
-  \item 12.8: PN despreading turns a tone into white noise, giving
+  \item 12.8: PN de-spreading turns a tone into white noise, giving
         \SIrange{11}{20}{dB} more jamming tolerance for $M=50$ to $1000$ and
         nearly frequency-independent performance.
   \item With $A=M$ the jammer exceeds the processing gain by \SIrange{14}{27}{dB}.

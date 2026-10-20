@@ -13,6 +13,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{tikz}
+\usepackage{svg}
 \usetikzlibrary{positioning,arrows.meta,fit,backgrounds}
 \usepackage[hidelinks]{hyperref}
 \usepackage[capitalise,noabbrev]{cleveref}
@@ -22,10 +23,11 @@
 
 % ---------------------------------------------------------------- details
 % Fill these in before submission.
+% When each person submits, make sure to swap the student name and id to urs in this bit
 \newcommand{\studentname}{[Student Name]}
 \newcommand{\studentid}{[Student ID]}
-\newcommand{\groupname}{The Goats}
-\newcommand{\groupmembers}{[Member 1], [Member 2], [Member 3], [Member 4]}
+\newcommand{\groupname}{Project 2 Group 1}
+\newcommand{\groupmembers}{Jaylen Avtarovski, Benjamin Hudson, Rhyse Williams, Elina Kim}
 
 \definecolor{codebg}{RGB}{248,248,248}
 \definecolor{codecomment}{RGB}{34,139,34}
@@ -48,16 +50,20 @@
 % ================================================================ title
 \begin{titlepage}
   \centering
+  
   {\large 42057 Introduction to Space Communications and Sensing\par}
   \vspace{0.3cm}
   {\large Spring 2026\par}
-  \vspace{2.5cm}
+  \vspace{2cm}
+  %\includegraphics[height=50pt]{uts_logo.png}\\
+  \includesvg[height=4cm]{uts.svg}\\
+  \vspace{3.5cm}
   {\Huge\bfseries Binary Data and Spread-Spectrum\\[0.2cm] Communications\par}
   \vspace{0.8cm}
   {\Large Assignment 2 --- Topic 2\par}
   \vspace{0.4cm}
-  {\large Ingle \& Proakis Projects 12.7 and 12.8\par}
-  \vfill
+  {\large UTS Faculty of Engineering \& IT\par}
+  \vspace{7cm}
   \begin{tabular}{rl}
     Student: & \studentname\ (\studentid) \\
     Group:   & \groupname \\
