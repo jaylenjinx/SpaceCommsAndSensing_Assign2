@@ -83,10 +83,10 @@ modulator, uniform noise channel, integrate-and-dump demodulator and threshold
 detector) is a separate MATLAB function, and the same functions are reused for the
 spread-spectrum system by adding a $\pm1$ pseudo-noise (PN) sequence and a
 sinusoidal jammer. For the unjammed system the measured bit error rate (BER) agrees
-with the exact closed-form (Irwin--Hall) result at every simulated point: the exact
-value lies inside the 95\% confidence interval of all 26 estimates, which span BERs
-from about $0.2$ down to $5\times10^{-8}$ (the lowest points rest on few errors and
-carry wide intervals). The common Gaussian approximation $\Q(\sqrt{\snr})$ is
+with the exact closed-form (Irwin--Hall) result: the exact value lies inside the 95\% confidence interval of 25 of the 26
+estimates, as expected at that confidence level, and the measured BERs span about
+$0.2$ down to $1.6\times10^{-6}$ (the lowest points rest on few errors and carry
+wide intervals). The common Gaussian approximation $\Q(\sqrt{\snr})$ is
 pessimistic at high SNR because uniform noise is bounded.
 For the jammed system, despreading converts the narrowband jammer into wideband
 noise. The ideal processing gain is $10\log_{10}M$ (\SIrange{17}{30}{dB}); the
@@ -445,12 +445,15 @@ Observations:
   \item The BER falls steeply with SNR, from about $0.2$ at \SI{0}{dB} to
         $10^{-6}$ near \SI{13}{dB}; each extra dB costs roughly a factor of three
         to ten in BER at high SNR.
-  \item The exact value lies inside the 95\% interval at all 26 simulated points of
-        both sweeps, which supports the implementation of all five blocks. At $M=1$
+  \item The exact value lies inside the 95\% interval at 25 of the 26 simulated
+        points of both sweeps, which supports the implementation of all five blocks.
+        The exception, sweep (b) at \SI{10}{dB}, misses its interval only narrowly
+        (exact $4.81\times10^{-4}$, interval from $4.89\times10^{-4}$); at 95\%
+        confidence about one point in twenty is expected to fall outside. At $M=1$
         the simulated $0.21$ matches $(a-1)/(2a)=0.211$. The agreement is tightest
         where errors are plentiful; above about \SI{12}{dB} the bit budget limits the
-        error count (83 and 28 errors at $M=18$ and $20$), so their 95\% intervals are
-        about $\pm20\%$ and $\pm40\%$ wide.
+        error count (82 and 32 errors at $M=18$ and $20$), so their 95\% intervals are
+        about $\pm20\%$ and $\pm35\%$ wide.
   \item The Gaussian approximation is accurate between about 3 and \SI{8}{dB} but
         is optimistic at $M=1$ (a single uniform sample has heavier mass near its
         edges than a Gaussian) and increasingly pessimistic at high SNR, by a factor
@@ -459,11 +462,10 @@ Observations:
         but separate at high SNR: for sweep (b) with $M=10$ fixed, high SNR means a
         small noise range $a$, and as $a\to1$ the maximum possible noise sum $Ma$
         approaches $M$, so $P_e\to0$ much faster than the Gaussian tail. At
-        \SI{13}{dB} only one error occurred in $2\times10^7$ bits. The point estimate
-        $5\times10^{-8}$ is therefore very uncertain: its 95\% interval is
-        $[1.3\times10^{-9},\,2.8\times10^{-7}]$, which contains the exact value
-        $1.2\times10^{-7}$ but would also be consistent with values more than an
-        order of magnitude lower, so this point should not be read as a precise measurement. The SNR alone does not fully describe the
+        \SI{13}{dB} no errors occurred in $2\times10^7$ bits. This does not mean
+        $P_e=0$: the 95\% upper bound is $1.8\times10^{-7}$, which is consistent
+        with the exact value $1.2\times10^{-7}$, so this point gives only an upper
+        bound and should not be read as a measurement. The SNR alone does not fully describe the
         system when the noise is not Gaussian.
 \end{enumerate}
 
@@ -496,12 +498,12 @@ $M$ & $A$ & No PN & PN & No PN & PN \\
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.78\linewidth]{p128_ber_A_eq_M}
-\caption{BER at $A=M$; black ticks mark the theoretical values.}
+\caption{BER at $A=M$. The theoretical values are listed in brackets in \cref{tab:128}.}
 \label{fig:aeqm}
 \end{figure}
 
 \begin{itemize}
-  \item \textbf{In-band jammer.} Without PN the BER is $0.49$--$0.50$ for every $M$:
+  \item \textbf{In-band jammer.} Without PN the BER is $0.49$--$0.51$ for every $M$:
         the jammer passes through the integrator with the full gain $M$, so the bit
         sum is dominated by $AM\sin(\cdot)$ and the decision is essentially a coin
         toss. With PN the BER is lower, $0.37$ at $M=50$, because the jammer has been
@@ -655,7 +657,7 @@ The brief asks for $A\ge M$. As derived in \cref{sec:theory} and confirmed by
 the ideal $10\log_{10}M=\SIrange{17}{30}{dB}$ processing gain, so the PN system
 operates near BER $=0.5$ ($0.37$--$0.48$) at both jammer frequencies. The conventional
 system's result depends strongly on where the jammer sits. In band it is also near
-$0.5$ ($0.49$--$0.50$), so PN gives only a modest advantage there. Out of band its
+$0.5$ ($0.49$--$0.51$), so PN gives only a modest advantage there. Out of band its
 integrator rejects the tone, giving BER $0$ for $M=50$ and $100$ and $0.013$ for
 $M=1000$, and only $M=500$ ($0.33$), where $|D_M(1)|>1$, shows substantial errors.
 In that case the conventional system is clearly better than the PN system. Rather than suggesting that spread spectrum is ineffective,
@@ -685,9 +687,9 @@ bit rate.
 
 Both textbook systems were implemented in MATLAB as one function per block and
 validated against analytical results. For the binary system with uniform noise the
-exact Irwin--Hall result lies inside the 95\% confidence interval of every
-simulated BER, from about $0.2$ down to $5\times10^{-8}$ (the lowest points rest on
-few errors and are correspondingly uncertain), and the familiar $\Q(\sqrt{\snr})$ approximation is pessimistic at high SNR because the
+exact Irwin--Hall result lies inside the 95\% confidence interval of 25 of the 26
+simulated BERs, from about $0.2$ down to $1.6\times10^{-6}$ (the lowest points rest
+on few errors and are correspondingly uncertain), and the familiar $\Q(\sqrt{\snr})$ approximation is pessimistic at high SNR because the
 noise is bounded. For the spread-spectrum system, the PN sequence converts a
 narrowband jammer into wideband noise, which the integrate-and-dump demodulator then
 averages down with an ideal processing gain of $M$ (\SIrange{17}{30}{dB}). In the
