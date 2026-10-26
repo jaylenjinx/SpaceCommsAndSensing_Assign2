@@ -110,24 +110,34 @@ for q = 1:2
 end
 fprintf('Experiment 3 done\n');
 
-f = figure('visible', 'off');
+f = figure('visible', 'off', 'Position', [100 100 640 560]);
 floor_ = 1e-5;
 for q = 1:2
     subplot(2,1,q);
-    h1 = semilogy(w_fine/pi, max(Wt0(q,:), floor_), 'r-', 'LineWidth', 0.8); hold on;
-    h2 = semilogy(w_list/pi, max(W0(q,:), floor_), 'rx', 'MarkerSize', 5);
-    h3 = semilogy(w_fine/pi, max(Wt1(q,:), floor_), 'b-', 'LineWidth', 1.4);
-    h4 = semilogy(w_list/pi, max(W1(q,:), floor_), 'bo', 'MarkerSize', 4);
-    grid on; ylim([floor_ 1]);
+    if q == 1
+        % Top panel on a linear scale: at A = M every BER is large, and a
+        % log axis would squash the PN curve against the top edge.
+        h1 = plot(w_fine/pi, Wt0(q,:), 'r-', 'LineWidth', 0.6); hold on;
+        h2 = plot(w_list/pi, W0(q,:), 'rx', 'MarkerSize', 5);
+        h3 = plot(w_fine/pi, Wt1(q,:), 'b-', 'LineWidth', 1.4);
+        h4 = plot(w_list/pi, W1(q,:), 'bo', 'MarkerSize', 4);
+        ylim([0 0.8]);
+        % Horizontal legend in the empty strip above the curves.
+        legend([h1 h2 h3 h4], 'No PN (theory)', 'No PN (sim)', 'PN (theory)', 'PN (sim)', ...
+               'Location', 'north', 'Orientation', 'horizontal');
+    else
+        semilogy(w_fine/pi, max(Wt0(q,:), floor_), 'r-', 'LineWidth', 0.6); hold on;
+        semilogy(w_list/pi, max(W0(q,:), floor_), 'rx', 'MarkerSize', 5);
+        semilogy(w_fine/pi, max(Wt1(q,:), floor_), 'b-', 'LineWidth', 1.4);
+        semilogy(w_list/pi, max(W1(q,:), floor_), 'bo', 'MarkerSize', 4);
+        ylim([floor_ 1]);
+    end
+    grid on; xlim([0 1]);
     title(sprintf('M = %d, A = %g, P_n = 1', M, A_pair(q)));
     ylabel('BER');
-    if q == 1
-        legend([h1 h2 h3 h4], 'No PN (theory)', 'No PN (sim)', 'PN (theory)', 'PN (sim)', ...
-               'Location', 'southwest');
-    end
 end
 xlabel('\omega_0 / \pi');
-save_fig(f, 'p128_ber_vs_w0');
+save_fig(f, 'p128_ber_vs_w0', 5.4);
 
 %% 4. Spectra before and after despreading
 M = 100; A = 10; w0 = 0.2*pi; Nb = 400; L = Nb*M; Nfft = 1024;

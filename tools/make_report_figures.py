@@ -14,14 +14,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
 from scipy.special import erfc
+from scipy.stats import beta
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "report" / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
 
 plt.rcParams.update({
-    "font.family": "serif",
-    "mathtext.fontset": "cm",
+    # STIX fonts embedded as TrueType keep symbols such as omega and pi as real
+    # Unicode glyphs in the PDF (the default cm/Type 3 fonts map them to "!" and
+    # "\xbc" when text is extracted or copied).
+    "font.family": "STIXGeneral",
+    "mathtext.fontset": "stix",
+    "pdf.fonttype": 42,
     "font.size": 10,
     "axes.grid": True,
     "grid.alpha": 0.35,
@@ -40,6 +45,15 @@ def load(name, key):
 
 def Q(x):
     return 0.5 * erfc(np.asarray(x) / np.sqrt(2))
+
+
+def ber_ci(k, n, conf=0.95):
+    """Clopper-Pearson interval for k errors in n bits (matches matlab/ber_ci.m)."""
+    k, n = np.asarray(k, float), np.asarray(n, float)
+    a = 1 - conf
+    lo = np.where(k > 0, beta.ppf(a / 2, np.maximum(k, 1), n - k + 1), 0.0)
+    hi = np.where(k < n, beta.ppf(1 - a / 2, k + 1, np.maximum(n - k, 1)), 1.0)
+    return lo, hi
 
 
 def save(fig, name):
@@ -79,13 +93,18 @@ ax.semilogy(snr, Q(np.sqrt(10 ** (snr / 10))), color=C["th"], lw=1.2,
             label=r"Gaussian approx. $Q(\sqrt{\mathrm{SNR}})$")
 ax.semilogy(r.snr_a_db, r.exact_a, "--", color=C["pn"], lw=1, label="Exact (Irwin–Hall), sweep (a)")
 ax.semilogy(r.snr_b_db, r.exact_b, ":", color=C["nopn"], lw=1.5, label="Exact (Irwin–Hall), sweep (b)")
-ax.semilogy(r.snr_a_db, np.where(r.ber_a > 0, r.ber_a, np.nan), "o", mfc="none",
-            color=C["pn"], label=r"Simulated (a): $P_n=1$, $M=1\ldots20$")
-ax.semilogy(r.snr_b_db, np.where(r.ber_b > 0, r.ber_b, np.nan), "s", mfc="none",
-            color=C["nopn"], label=r"Simulated (b): $M=10$, $P_n$ varied")
+for snr_db, ber, k, n, mk, col, lab in [
+        (r.snr_a_db, r.ber_a, r.nerr_a, r.nbits_a, "o", C["pn"],
+         r"Simulated (a): $P_n=1$, $M=1\ldots20$"),
+        (r.snr_b_db, r.ber_b, r.nerr_b, r.nbits_b, "s", C["nopn"],
+         r"Simulated (b): $M=10$, $P_n$ varied")]:
+    lo, hi = ber_ci(k, n)
+    ok = ber > 0
+    ax.errorbar(snr_db[ok], ber[ok], yerr=[ber[ok] - lo[ok], hi[ok] - ber[ok]], fmt=mk,
+                mfc="none", color=col, ms=5, capsize=2, elinewidth=0.8, label=lab)
 ax.set_xlim(-1, 14); ax.set_ylim(1e-8, 1)
 ax.set_xlabel(r"SNR $= M/P_n$ (dB)"); ax.set_ylabel("Bit error rate")
-ax.legend(loc="lower left")
+ax.legend(loc="lower left", title="Error bars: 95% Clopper–Pearson", title_fontsize=8)
 save(fig, "p127_ber")
 
 # ---------------------------------------------------------------- 12.8

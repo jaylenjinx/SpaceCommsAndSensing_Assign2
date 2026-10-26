@@ -28,7 +28,7 @@ The code needs no toolboxes and also runs in GNU Octave:
 ```sh
 octave-cli --path matlab --eval run_all
 python3 tools/make_report_figures.py          # needs numpy, scipy, matplotlib
-cd report && pdflatex main.tex && pdflatex main.tex && cp main.pdf ../output/Assignment2_Report.pdf
+cd report && pdflatex -shell-escape main.tex && pdflatex -shell-escape main.tex && cp main.pdf ../output/Assignment2_Report.pdf   # logo needs Inkscape
 cd ../slides && pdflatex slides.tex && pdflatex slides.tex && cp slides.pdf ../output/Assignment2_Presentation.pdf
 ```
 
