@@ -83,16 +83,21 @@ modulator, uniform noise channel, integrate-and-dump demodulator and threshold
 detector) is a separate MATLAB function, and the same functions are reused for the
 spread-spectrum system by adding a $\pm1$ pseudo-noise (PN) sequence and a
 sinusoidal jammer. For the unjammed system the measured bit error rate (BER) agrees
-with the exact closed-form (Irwin--Hall) result to within Monte-Carlo accuracy from
-\num{2e-1} down to \num{5e-8}, and it shows that the common Gaussian approximation
-$\Q(\sqrt{\snr})$ is pessimistic at high SNR because uniform noise is bounded.
+with the exact closed-form (Irwin--Hall) result at every simulated point: the exact
+value lies inside the 95\% confidence interval of all 26 estimates, which span BERs
+from about $0.2$ down to $5\times10^{-8}$ (the lowest points rest on few errors and
+carry wide intervals). The common Gaussian approximation $\Q(\sqrt{\snr})$ is
+pessimistic at high SNR because uniform noise is bounded.
 For the jammed system, despreading converts the narrowband jammer into wideband
-noise and provides a processing gain of $10\log_{10}M$ dB, which raised the jamming
-power the receiver tolerates at BER $=10^{-3}$ by \SIrange{11}{20}{dB} for
-$M=50$ to $1000$. Under the brief's literal condition $A=M$, however, the jammer
-power grows as $M^2$ while the processing gain grows only as $M$, so both systems
-operate near BER $=0.5$; the PN system is better against an in-band jammer but
-can be worse against an out-of-band one. The jammed results agree with
+noise. The ideal processing gain is $10\log_{10}M$ (\SIrange{17}{30}{dB}); the
+measured improvement in the jamming power tolerated at BER $=10^{-3}$ was
+\SIrange{11.4}{20.5}{dB} for $M=50$ to $1000$. Under the brief's literal condition
+$A=M$ the outcome depends on the jammer frequency. Against an in-band jammer both
+systems operate near BER $=0.5$, because the jammer power grows as $M^2$ while the
+processing gain grows only as $M$, and the PN system is only modestly better. Against
+an out-of-band jammer the conventional receiver's own low-pass response rejects the
+tone (BER $0$ for $M=50$ and $100$, $0.013$ for $M=1000$, but $0.33$ for $M=500$),
+while the PN system stays near $0.42$--$0.48$ and is worse. The jammed results agree with
 semi-analytical expressions (Gaussian treatment of the summed noise, averaged over
 the jammer phase) derived in the report.
 \end{abstract}
@@ -107,10 +112,10 @@ Spacecraft links are power limited, operate over long distances, and are exposed
 both unintentional radio-frequency interference and deliberate jamming. Spread
 spectrum is the standard answer to the second problem: the Global Positioning
 System spreads its \SI{50}{bit/s} navigation message with a
-\SI{1.023}{Mchip/s} C/A code, a processing gain of about \SI{43}{dB}, and NASA's
-Tracking and Data Relay Satellite System uses direct-sequence spreading on its
-multiple-access links for the same reasons: interference rejection, low power
-spectral density and code-division multiple access.
+\SI{1.023}{Mchip/s} C/A code~\cite{gps}, a processing gain of about \SI{43}{dB},
+and NASA's Tracking and Data Relay Satellite System uses direct-sequence spreading
+on its multiple-access links~\cite{snug} for the same reasons: interference
+rejection, low power spectral density and code-division multiple access.
 
 This assignment studies the mechanism behind that protection using two projects
 from Ingle and Proakis~\cite{ingle2017}:
@@ -305,9 +310,11 @@ $\mathrm{E}_\phi\big[\Q\big(M/\sqrt{MP_n + A^2\sum\sin^2(\omega_0n+\phi)}\big)\b
 \paragraph{Consequence for the condition $A\ge M$.} The jammer-to-signal power ratio
 is $\mathrm{JSR}=A^2/2$, so with $A=M$ it is $M^2/2$ while the processing gain is
 only $M$. \Cref{eq:pe_pn} then gives $\mathrm{SINR}\approx2/M$, which
-\emph{decreases} with $M$: under the brief's condition neither system can reach a
-low error rate, and the comparison must be read in terms of which system degrades
-less. This prediction is confirmed in \cref{sec:res128}.
+\emph{decreases} with $M$: under the brief's condition the PN system cannot reach a
+low error rate at any jammer frequency. The conventional system cannot either when
+the jammer is in band, but an out-of-band jammer may still be rejected by its
+integrator, depending on $|D_M(\omega_0)|$ in \eqref{eq:jk}. These predictions are
+confirmed in \cref{sec:res128}.
 
 % ================================================================ implementation
 \section{MATLAB implementation}\label{sec:impl}
@@ -371,7 +378,10 @@ y = demodulator(r, M);                  % demodulator
         jammer sample index $n_0$ is carried between blocks so its phase is continuous.
   \item \textbf{Stopping rule.} For Project 12.7 each SNR point runs until 200 errors
         are counted or $2\times10^7$ bits are simulated. With 200 errors the relative
-        standard error of the BER estimate is about $1/\sqrt{200}\approx7\%$.
+        standard error of the BER estimate is about $1/\sqrt{200}\approx7\%$. Points
+        that hit the bit limit first have fewer errors and are less certain, so
+        every Project 12.7 estimate is reported with its error count and a 95\%
+        Clopper--Pearson (exact binomial) interval (\texttt{ber\_ci.m}).
         For the $A=M$ experiment a fixed budget of $2\times10^7$ samples per point
         ($4\times10^5$ bits at $M=50$, $2\times10^4$ bits at $M=1000$) was used;
         at BER $\approx0.45$ this gives a standard error below $0.004$.
@@ -415,13 +425,15 @@ $\snr=0$--$\SI{13}{dB}$. \Cref{fig:ber127} and \cref{tab:127} show the results.
 
 \begin{table}[ht]
 \centering
-\caption{Sweep (a): $P_n=1$, $M$ varied. Simulated BER compared with the exact
-probability and the Gaussian approximation $\Q(\sqrt{\snr})$.}
+\caption{Sweep (a): $P_n=1$, $M$ varied. Simulated BER with its error count and 95\%
+Clopper--Pearson interval, compared with the exact probability \eqref{eq:pe_exact}
+and the Gaussian approximation $\Q(\sqrt{\snr})$.}
 \label{tab:127}
-\small
-\begin{tabular}{@{}rrcccr@{}}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}rrrcccccc@{}}
 \toprule
-$M$ & SNR (dB) & Simulated & Exact & $\Q(\sqrt{\snr})$ & Bits \\
+$M$ & SNR (dB) & Errors & Bits & Simulated & 95\% interval & Exact & $\Q(\sqrt{\snr})$ \\
 \midrule
 \inputrows{../results/table_127.tex}
 \bottomrule
@@ -433,9 +445,12 @@ Observations:
   \item The BER falls steeply with SNR, from about $0.2$ at \SI{0}{dB} to
         $10^{-6}$ near \SI{13}{dB}; each extra dB costs roughly a factor of three
         to ten in BER at high SNR.
-  \item The simulation agrees with the exact result at every point within the
-        expected Monte-Carlo scatter, which validates the implementation of all five
-        blocks. At $M=1$ the simulated $0.21$ matches $(a-1)/(2a)=0.211$.
+  \item The exact value lies inside the 95\% interval at all 26 simulated points of
+        both sweeps, which supports the implementation of all five blocks. At $M=1$
+        the simulated $0.21$ matches $(a-1)/(2a)=0.211$. The agreement is tightest
+        where errors are plentiful; above about \SI{12}{dB} the bit budget limits the
+        error count (83 and 28 errors at $M=18$ and $20$), so their 95\% intervals are
+        about $\pm20\%$ and $\pm40\%$ wide.
   \item The Gaussian approximation is accurate between about 3 and \SI{8}{dB} but
         is optimistic at $M=1$ (a single uniform sample has heavier mass near its
         edges than a Gaussian) and increasingly pessimistic at high SNR, by a factor
@@ -443,9 +458,12 @@ Observations:
   \item The two sweeps coincide at low SNR, as the definition $\snr=M/P_n$ implies,
         but separate at high SNR: for sweep (b) with $M=10$ fixed, high SNR means a
         small noise range $a$, and as $a\to1$ the maximum possible noise sum $Ma$
-        approaches $M$, so $P_e\to0$ much faster than the Gaussian tail. Only
-        one error in $2\times10^7$ bits was observed at \SI{13}{dB}, consistent with
-        the exact value $1.2\times10^{-7}$. The SNR alone does not fully describe the
+        approaches $M$, so $P_e\to0$ much faster than the Gaussian tail. At
+        \SI{13}{dB} only one error occurred in $2\times10^7$ bits. The point estimate
+        $5\times10^{-8}$ is therefore very uncertain: its 95\% interval is
+        $[1.3\times10^{-9},\,2.8\times10^{-7}]$, which contains the exact value
+        $1.2\times10^{-7}$ but would also be consistent with values more than an
+        order of magnitude lower, so this point should not be read as a precise measurement. The SNR alone does not fully describe the
         system when the noise is not Gaussian.
 \end{enumerate}
 
@@ -539,9 +557,9 @@ $M$ & $10\log_{10}M$ & No PN & PN & Improvement & JSR at $A=M$ \\
 Without PN every curve breaks at roughly the same point, $\mathrm{JSR}\approx-3$
 to \SI{0}{dB}, i.e.\ $A\approx1$: once the jammer amplitude exceeds the signal
 amplitude, errors occur no matter how many samples are integrated. With PN the
-curves move right by roughly $10\log_{10}M$, and the improvement in
-\cref{tab:margin} grows from \SI{11}{dB} at $M=50$ to \SI{20}{dB} at $M=1000$.
-The improvement is below the ideal $10\log_{10}M$ because a jammer this slow does
+curves move to the right, and the measured improvement in \cref{tab:margin} grows
+from \SI{11.4}{dB} at $M=50$ to \SI{20.5}{dB} at $M=1000$. This is below the ideal
+processing gain $10\log_{10}M$ (\SIrange{17}{30}{dB}) because a jammer this slow does
 not average its $\sin^2$ within one bit, so some bits see more interference than
 others, and because the noise still contributes. The last column shows why the
 $A=M$ experiment saturates: the jammer is \SIrange{26}{37}{dB} stronger than the
@@ -580,9 +598,12 @@ power 1 (\SI{0}{dB}), as is the noise, while the jammer is a line \SI{40}{dB}
 above them. After despreading the roles swap: the desired signal collapses back into
 the narrow $\mathrm{sinc}^2$ spectrum of a rectangular pulse, with \SI{20}{dB}
 ($=10\log_{10}M$) at DC, and the jammer becomes a white floor at
-$10\log_{10}(A^2/2)=\SI{17}{dB}$. The integrate-and-dump demodulator passes only
-the band $|\omega|\lesssim2\pi/M$, which contains all of the signal energy but only
-a fraction of order $1/M$ of the spread jammer power.
+$10\log_{10}(A^2/2)=\SI{17}{dB}$. The integrate-and-dump demodulator is not a sharp
+filter but a low-pass response, $|D_M(\omega)|$ in \eqref{eq:jk}, whose main lobe
+covers $|\omega|<2\pi/M$ and whose sidelobes fall off gradually. That main lobe holds
+most of the energy of the despread signal (about 90\% of a rectangular pulse's
+$\mathrm{sinc}^2$ spectrum; the rest lies in its sidelobes), while the white jammer
+contributes only a fraction of order $1/M$ of its power to the bit sum.
 
 \begin{figure}[ht]
 \centering
@@ -613,8 +634,8 @@ concentrates only the signal back into the narrow band of the demodulator.
         incoherently (power $MA^2/2$), giving a gain of $M$ in signal-to-jammer ratio.
         Without PN, an in-band jammer adds coherently as well, so integration gives no
         gain at all; this is why the conventional system fails at $A\approx1$ whatever
-        $M$ is, while the PN system tolerates jammers \SIrange{11}{20}{dB} stronger
-        (\cref{tab:margin}).
+        $M$ is. The ideal gain is $10\log_{10}M=\SIrange{17}{30}{dB}$; the measured
+        improvement at BER $=10^{-3}$ was \SIrange{11.4}{20.5}{dB} (\cref{tab:margin}).
   \item \textbf{Weak dependence on the jammer frequency.} Away from the band edges
         (within about $2\pi/M$ of $\omega_0=0$ or $\pi$) the PN system's performance
         depends essentially on the jammer power alone (\cref{fig:w0}). A jammer
@@ -631,11 +652,13 @@ concentrates only the signal back into the narrow band of the demodulator.
 
 The brief asks for $A\ge M$. As derived in \cref{sec:theory} and confirmed by
 \cref{tab:128}, this places the jammer \SIrange{31}{57}{dB} above the signal, beyond
-the $10\log_{10}M=\SIrange{17}{30}{dB}$ processing gain, so neither system works
-reliably and the PN system's advantage appears only as a lower error rate against an
-in-band jammer ($0.37$ against $0.49$ at $M=50$). We also found that for an
-out-of-band jammer the conventional system can be better, because its integrator
-already rejects the tone. Rather than suggesting that spread spectrum is ineffective,
+the ideal $10\log_{10}M=\SIrange{17}{30}{dB}$ processing gain, so the PN system
+operates near BER $=0.5$ ($0.37$--$0.48$) at both jammer frequencies. The conventional
+system's result depends strongly on where the jammer sits. In band it is also near
+$0.5$ ($0.49$--$0.50$), so PN gives only a modest advantage there. Out of band its
+integrator rejects the tone, giving BER $0$ for $M=50$ and $100$ and $0.013$ for
+$M=1000$, and only $M=500$ ($0.33$), where $|D_M(1)|>1$, shows substantial errors.
+In that case the conventional system is clearly better than the PN system. Rather than suggesting that spread spectrum is ineffective,
 this shows that the benefit is a fixed number of decibels: to obtain a low error
 rate with $A=M$ the processing gain would need to grow as $M^2$, which this system's
 single-PN-chip-per-sample structure cannot provide. Practical systems such as GPS
@@ -662,17 +685,22 @@ bit rate.
 
 Both textbook systems were implemented in MATLAB as one function per block and
 validated against analytical results. For the binary system with uniform noise the
-BER follows the exact Irwin--Hall result over seven decades, and the
-familiar $\Q(\sqrt{\snr})$ approximation is pessimistic at high SNR because the
+exact Irwin--Hall result lies inside the 95\% confidence interval of every
+simulated BER, from about $0.2$ down to $5\times10^{-8}$ (the lowest points rest on
+few errors and are correspondingly uncertain), and the familiar $\Q(\sqrt{\snr})$ approximation is pessimistic at high SNR because the
 noise is bounded. For the spread-spectrum system, the PN sequence converts a
 narrowband jammer into wideband noise, which the integrate-and-dump demodulator then
-averages down by the processing gain $M$. This made the receiver tolerate in-band
-jammers \SIrange{11}{20}{dB} stronger than the conventional receiver and made its
+averages down with an ideal processing gain of $M$ (\SIrange{17}{30}{dB}). In the
+simulations this let the receiver tolerate in-band jammers \SIrange{11.4}{20.5}{dB}
+stronger than the conventional receiver at BER $=10^{-3}$, and made its
 performance nearly independent of the jammer frequency away from the band edges. Under the brief's condition $A=M$
-the jammer power exceeds the processing gain by \SIrange{14}{27}{dB}, so both systems
-operate near BER $=0.5$; the PN system still has the lower error rate against an
-in-band jammer, but not against an out-of-band one, which the conventional
-demodulator already filters out.
+the jammer power exceeds the ideal processing gain by \SIrange{14}{27}{dB}, so the
+PN system operates near BER $=0.5$ at both jammer frequencies. The conventional system
+is also near $0.5$ against an in-band jammer, where PN keeps a modest advantage, but
+against an out-of-band jammer its demodulator filters the tone out (BER $0$--$0.013$
+except $0.33$ at $M=500$), and it outperforms the PN system. Jammer frequency therefore
+matters as much as jammer power for the conventional receiver, but much less for the
+spread-spectrum one.
 
 % ================================================================ contribution
 \section*{Individual contribution}
@@ -688,8 +716,11 @@ implemented, which experiments you ran, and which parts of the analysis you led.
   5th~ed. New York: McGraw-Hill, 2008, ch.~12 (spread-spectrum signals).
 \bibitem{sklar2001} B.~Sklar, \emph{Digital Communications: Fundamentals and
   Applications}, 2nd~ed. Upper Saddle River, NJ: Prentice Hall, 2001, ch.~12.
-\bibitem{gps} U.S.~Space Force, \emph{Interface Specification IS-GPS-200}, NAVSTAR
-  GPS Space Segment/Navigation User Segment Interfaces.
+\bibitem{gps} U.S.~Space Force, Space Systems Command, \emph{NAVSTAR GPS Space
+  Segment/Navigation User Segment Interfaces}, Interface Specification IS-GPS-200,
+  Rev.~N, Aug.~2022. [Online]. Available: \url{https://www.gps.gov/technical/icwg/}
+\bibitem{snug} NASA Goddard Space Flight Center, \emph{Space Network Users' Guide
+  (SNUG)}, 450-SNUG, Rev.~10, Greenbelt, MD, 2012.
 \end{thebibliography}
 
 % ================================================================ appendix

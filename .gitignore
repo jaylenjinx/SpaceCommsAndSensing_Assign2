@@ -54,3 +54,4 @@ codegen/
 # Compiled PDFs are kept in output/
 report/*.pdf
 slides/*.pdf
+report/svg-inkscape/

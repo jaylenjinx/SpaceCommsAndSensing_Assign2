@@ -118,8 +118,8 @@ y = demodulator(r, M);
 \column{0.42\textwidth}
 \small
 \begin{itemize}
-  \item Simulation matches the \alert{exact} closed-form (Irwin--Hall) result
-        down to $10^{-7}$.
+  \item Exact closed-form (Irwin--Hall) result lies inside the \alert{95\% interval}
+        of every simulated point; the lowest BERs rest on few errors.
   \item $\Q(\sqrt{\mathrm{SNR}})$ is \alert{pessimistic} at high SNR: uniform noise is bounded.
   \item Sweeps diverge at high SNR: with $M=10$ fixed, $a\to1$ and errors become
         impossible ($Ma\le M$).
@@ -167,7 +167,7 @@ $M=100$, $A=10$, $\omega_0=0.2\pi$
   \item Channel: signal is white at \SI{0}{dB}, jammer is a \SI{40}{dB} line.
   \item After despreading: signal returns to a $\mathrm{sinc}^2$ with \SI{20}{dB}
         at DC; jammer is a \alert{white floor} at \SI{17}{dB}.
-  \item The demodulator passes only $|\omega|\lesssim2\pi/M$, about $1/M$ of the jammer power.
+  \item The demodulator is a \alert{low-pass} response: its main lobe ($|\omega|<2\pi/M$) holds most of the signal energy but only about $1/M$ of the jammer power.
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -199,7 +199,7 @@ JSR tolerated at BER $=10^{-3}$:
 \begin{center}
 \begin{tabular}{@{}rccc@{}}
 \toprule
-$M$ & No PN & PN & Gain \\
+$M$ & No PN & PN & Improvement \\
 \midrule
 50   & $-6.5$ & $4.9$  & \SI{11.4}{dB} \\
 100  & $-5.0$ & $8.3$  & \SI{13.3}{dB} \\
@@ -239,8 +239,8 @@ Without PN, more samples per bit \alert{do not help}: the jammer is integrated t
 \end{enumerate}
 \vspace{0.3cm}
 \begin{alertblock}{Caveat from the $A\ge M$ condition within the brief}
-The jammer power grows as $M^2$ but the processing gain only as $M$, so both systems
-sit near BER $=0.5$. The benefit of spreading is a fixed number of decibels.
+Jammer power grows as $M^2$ but processing gain only as $M$, so PN sits near BER $=0.5$.
+No PN: also $\approx0.5$ in band, but an out-of-band tone is filtered out (BER $0$--$0.013$, except $0.33$ at $M=500$).
 \end{alertblock}
 \end{frame}
 
@@ -251,9 +251,9 @@ sit near BER $=0.5$. The benefit of spreading is a fixed number of decibels.
   \item 12.7: BER matches the exact uniform-noise result; the Gaussian
         approximation is pessimistic at high SNR.
   \item 12.8: PN de-spreading turns a tone into white noise, giving
-        \SIrange{11}{20}{dB} more jamming tolerance for $M=50$ to $1000$ and
+        \SIrange{11.4}{20.5}{dB} measured improvement (ideal \SIrange{17}{30}{dB}) for $M=50$ to $1000$ and
         nearly frequency-independent performance.
-  \item With $A=M$ the jammer exceeds the processing gain by \SIrange{14}{27}{dB}.
+  \item With $A=M$ the jammer exceeds the ideal processing gain by \SIrange{14}{27}{dB}; the outcome then depends on jammer frequency.
   \item Limitations: perfect synchronisation; random PN instead of m-sequences or Gold codes.
 \end{itemize}
 \end{frame}
